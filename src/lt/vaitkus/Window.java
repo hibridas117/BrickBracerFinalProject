@@ -67,7 +67,7 @@ public class Window extends JFrame {
 		 * The level of the game. Starts at 1.
 		 */
 
-		int level = 3;
+		int level = 1;
 
 		/**
 		 * The speed of the ball. 6 was the original
@@ -79,7 +79,7 @@ public class Window extends JFrame {
 		 * The array of blocks that the user tries to destroy.
 		 */
 		// TODO change to 32
-		private Block[] blocks = new Block[1];
+		private Block[] blocks = new Block[32];
 
 		/**
 		 * The array balls that display the number of lives remaining.
