@@ -9,6 +9,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.awt.Color;
 
 /**
@@ -79,7 +80,7 @@ public class Window extends JFrame {
 		 * The array of blocks that the user tries to destroy.
 		 */
 		// TODO change to 32
-		private Block[] blocks = new Block[32];
+		private Block[] blocks = new Block[1];
 
 		/**
 		 * The array balls that display the number of lives remaining.
@@ -115,7 +116,13 @@ public class Window extends JFrame {
 
 		boolean paused = false;
 
+		// TODO extra
+
+		boolean musicPlay = false;
+
 		Random random = new Random();
+
+		int test = 1;
 
 		/**
 		 * The constructor for the panel. Here is where the objects' properties are
@@ -127,11 +134,16 @@ public class Window extends JFrame {
 			addMouseMotionListener(this);
 			setFocusable(true);
 
-			// Plays the background music in a loop as long as the game has not yet
-			// been won.
-			if (gameWon == false || paused == false ) {
+			/**
+			 * Plays the background music in a loop as long as the game has not yet been
+			 * won.
+			 */
+			// TODO paused == false does nothing
+			/*if (gameWon == false || paused == false) {
+				while(musicPlay)
 				playInLoop("backgroundmusic.wav");
-			}
+				Thread.currentThread().getName();
+			}*/
 
 			setBackground(Color.DARK_GRAY);
 			ball = new Ball(390, 505, 10, Color.WHITE, (int) ballSpeed, 20);
@@ -188,11 +200,27 @@ public class Window extends JFrame {
 			if (e.getKeyCode() == KeyEvent.VK_P) {
 				if (paused == false) {
 					paused = true;
+					// TODO
+					musicPlay = false;
 					// TODO change color of text
 					getGraphics().drawString("GAME PAUSED ", 350, 300);
 
 				} else {
 					paused = false;
+				}
+			}
+			// if (e.getKeyCode() == KeyEvent.VK_M) {
+			// playInLoop("backgroundmusic.wav");
+			// }
+			if (e.getKeyCode() == KeyEvent.VK_M) {
+
+				if (musicPlay == false) {
+					musicPlay = true;
+					// TODO change color of text
+					// getGraphics().drawString("GAME PAUSED ", 350, 300);
+
+				} else {
+					musicPlay = false;
 				}
 			}
 		}
@@ -295,15 +323,18 @@ public class Window extends JFrame {
 
 		/**
 		 * Similar to the play() method but instead of playing the sound once, it plays
-		 * it in a loop. Used in this porgram for the awesome 8-bit background music.
+		 * it in a loop. Used in this program for the awesome 8-bit background music.
 		 * 
 		 * @param filename the sound file.
 		 */
 		public void playInLoop(String filename) {
 			try {
+
 				Clip clip = AudioSystem.getClip();
 				clip.open(AudioSystem.getAudioInputStream(new File(filename)));
+				// clip.stop();
 				clip.loop(Clip.LOOP_CONTINUOUSLY);
+
 			} catch (LineUnavailableException e) {
 				System.out.println("Audio Error");
 			} catch (IOException e) {
@@ -312,6 +343,26 @@ public class Window extends JFrame {
 				System.out.println("Wrong File Type");
 			}
 		}
+
+		/**
+		 * Stop() method to stop selected sound track.
+		 * 
+		 * @param filename the sound file.
+		 */
+		// TODO finish
+		// public void stop(String filename) {
+		public void stop() {
+			try {
+				Clip clip = AudioSystem.getClip();
+				// clip.open(AudioSystem.getAudioInputStream(new File(filename)));
+				clip.stop();
+				// myClip.stop();
+			} catch (LineUnavailableException e) {
+				System.out.println("Audio Error");
+			}
+		}
+
+		//
 
 		/**
 		 * This method is arguably the heart of the game. This is the method that is
@@ -340,16 +391,16 @@ public class Window extends JFrame {
 				ball.move(getWidth(), getHeight(), (int) paddle.getX(), (int) paddle.getY());
 			}
 
-			//Level 2
-			//Draws the blocks. The first and 3rd rows of blocks is set to move.
+			// Level 2
+			// Draws the blocks. The first and 3rd rows of blocks is set to move.
 			for (int i = 0; i < blocks.length; i++) {
 				blocks[i].draw(g);
 				if (level == 2) {
 					blocks[i].draw(g);
 					if (i < 8) {
 						blocks[i].move(getWidth(), 1);
-						}
-					if ( i > 15 && i < 24) {
+					}
+					if (i > 15 && i < 24) {
 						blocks[i].move(getWidth(), -1);
 					}
 				}
@@ -454,30 +505,42 @@ public class Window extends JFrame {
 			for (int i = 0; i < blocks.length; i++) {
 				if (blocks[i].isDestroyed()) {
 					levelCompleted = true;
-					
-					// gameWon = true;
-				} 
-				else {
+					if (level == 3) {
+						// gameWon = true;
+					}
+
+				} else {
 					levelCompleted = false;
 					gameWon = false;
-					return;
+					// return;
 				}
 			}
-			
-			//After all 3 levels are completed gameWon set to true.
+
+			// After all 3 levels are completed gameWon set to true.
 			if (level == 3 && levelCompleted == true) {
-			gameWon = true;
-			
+				gameWon = true;
+			}
+
 			// After level is competed reseting paddle and the ball
-			if (levelCompleted == true) {
-				// g.drawString("NEXT LEVEL!", 370, 250);
-				// repaint();
+			if (levelCompleted == true && gameWon == false) {
+				if ("AWT-EventQueue-0".equals(Thread.currentThread().getName())) {
+					// TODO change color
+					getGraphics().drawString("LEVEL "+ level + " COMPLETED!", 350, 250);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				}
+
+				System.out.println(Thread.currentThread().getName());
 				// paused = true;
 				ballBegin = false;
-				ball = new Ball(390 - ((3 - lives) * 10), 505, 10, Color.WHITE, 6, 20);
+				ballSpeed = ballSpeed + 2;
+				ball = new Ball(390 - ((3 - lives) * 10), 505, 10, Color.WHITE, ballSpeed, 20);
 				paddle = new Paddle(350, 522, 100 - ((3 - lives) * 20), 15, Color.RED, 20);
 				level++;
 				levelCompleted = false;
+
 				// new blocks for level 2
 				if (level == 2) {
 					int blockSpotX = 100;
@@ -503,11 +566,9 @@ public class Window extends JFrame {
 							blockSpotX = 100;
 						}
 					}
-				}	
+				}
 			}
-			
-			}
-			// TODO prideti salyga and ir levels= skaicius paskutinio levelio
+
 			if (gameWon == true) {
 				g.drawString("YOU WON!", 370, 250);
 			}
@@ -521,11 +582,17 @@ public class Window extends JFrame {
 		public void run() {
 			while (gameOver == false) {
 				// If paused = true
+				// System.out.println(Thread.currentThread().getName());
 				if (!paused) {
 					repaint();
 				}
-
-				// repaint();
+				if (levelCompleted) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.out.println("Error detected");
+					}
+				}
 				try {
 					Thread.sleep(16);
 				} catch (InterruptedException e) {
@@ -538,13 +605,13 @@ public class Window extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent arg0) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void keyTyped(KeyEvent arg0) {
 			// TODO Auto-generated method stub
-			
+
 		}
 	}
 
