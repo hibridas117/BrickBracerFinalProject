@@ -7,6 +7,11 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
+
+import javafx.stage.Stage;
+import lt.vaitkus.graphic.HighScorePopUp;
+import lt.vaitkus.graphic.StartWindow;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -16,27 +21,55 @@ import java.awt.Color;
  * This is the main class that runs the game. Contains a JFrame that contains a
  * JPanel which in turn contains the main components of the game.
  *
- * Created by Claude Daniel.
  */
-public class Window extends JFrame {
+
+public class MainWindow extends JFrame {
+	/**
+	 * The name of the player.
+	 */
+
+	public String playerName;
+
+	public String getPlayerName() {
+		return playerName;
+	}
+
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+
 	public static void main(String[] args) {
-		Window w = new Window();
+		// MainWindow w = new MainWindow();
+	}
+
+	/*
+	 * public void startGame() { setBounds(100, 100, 800, 600);
+	 * setTitle("Brick Braker game");
+	 * setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); Panel p = new Panel();
+	 * setContentPane(p); Thread t = new Thread(p); t.start(); setVisible(true); }
+	 */
+
+	public void startGame(int level) {
+		setBounds(100, 100, 800, 600);
+		setTitle("Brick Braker game");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Panel p = new Panel(level);
+		setContentPane(p);
+		Thread t = new Thread(p);
+		t.start();
+		setVisible(true);
 	}
 
 	/**
 	 * The constructor for the main window. This creates the panel and starts it as
 	 * a thread.
 	 */
-	public Window() {
-		setBounds(100, 100, 800, 600);
-		setTitle("Brick Braker game");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Panel p = new Panel();
-		setContentPane(p);
-		Thread t = new Thread(p);
-		t.start();
-		setVisible(true);
-	}
+	/*
+	 * public MainWindow() { setBounds(100, 100, 800, 600);
+	 * setTitle("Brick Braker game");
+	 * setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); Panel p = new Panel();
+	 * setContentPane(p); Thread t = new Thread(p); t.start(); setVisible(true); }
+	 */
 
 	/**
 	 * This is the Panel class that extends JPanel. Contains all the main components
@@ -68,7 +101,15 @@ public class Window extends JFrame {
 		 * The level of the game. Starts at 1.
 		 */
 
-		int level = 1;
+		public int level;
+
+		public int getLevel() {
+			return level;
+		}
+
+		public void setLevel(int level) {
+			this.level = level;
+		}
 
 		/**
 		 * The speed of the ball. 6 was the original
@@ -80,7 +121,7 @@ public class Window extends JFrame {
 		 * The array of blocks that the user tries to destroy.
 		 */
 		// TODO change to 32
-		private Block[] blocks = new Block[1];
+		private Block[] blocks = new Block[32];
 
 		/**
 		 * The array balls that display the number of lives remaining.
@@ -98,9 +139,9 @@ public class Window extends JFrame {
 		 */
 		boolean gameOver = false;
 
-		// TODO Paeditint teksta, nes leveliai nauji atsirado
 		/**
-		 * This gameWon boolean is set to true when all the blocks are destroyed.
+		 * This gameWon boolean is set to true when all the blocks are destroyed in
+		 * final level.
 		 */
 		boolean gameWon = false;
 
@@ -116,19 +157,23 @@ public class Window extends JFrame {
 
 		boolean paused = false;
 
-		// TODO extra
+		// TODO Not used
 
 		boolean musicPlay = false;
 
 		Random random = new Random();
 
-		int test = 1;
+		/**
+		 * Counter for destroyed blocks in every level.
+		 */
+
+		int countDestroyedBlocks = 0;
 
 		/**
 		 * The constructor for the panel. Here is where the objects' properties are
 		 * initialized.
 		 */
-		public Panel() {
+		public Panel(int level) {
 			addMouseListener(this);
 			addKeyListener(this);
 			addMouseMotionListener(this);
@@ -138,17 +183,17 @@ public class Window extends JFrame {
 			 * Plays the background music in a loop as long as the game has not yet been
 			 * won.
 			 */
-			// TODO paused == false does nothing
-			/*if (gameWon == false || paused == false) {
-				while(musicPlay)
-				playInLoop("backgroundmusic.wav");
-				Thread.currentThread().getName();
-			}*/
+			// TODO try to make mute button
+
+			if (gameWon == false || paused == false) {
+				//playInLoop("backgroundmusic.wav");
+				// Thread.currentThread().getName();
+			}
 
 			setBackground(Color.DARK_GRAY);
-			ball = new Ball(390, 505, 10, Color.WHITE, (int) ballSpeed, 20);
-			// TODO change again to normal. test version
-			// paddle = new Paddle(350, 522, 500, 15, Color.RED, 20);
+			this.level = level;
+			ballSpeed = ballSpeed * level;
+			ball = new Ball(390 - ((3 - lives) * 10), 505, 10, Color.WHITE, (int) ballSpeed, 20);
 			paddle = new Paddle(350, 522, 100, 15, Color.RED, 20);
 
 			// Here, the blocks are created .
@@ -209,15 +254,12 @@ public class Window extends JFrame {
 					paused = false;
 				}
 			}
-			// if (e.getKeyCode() == KeyEvent.VK_M) {
-			// playInLoop("backgroundmusic.wav");
-			// }
+			// TODO Not in use
 			if (e.getKeyCode() == KeyEvent.VK_M) {
 
 				if (musicPlay == false) {
 					musicPlay = true;
 					// TODO change color of text
-					// getGraphics().drawString("GAME PAUSED ", 350, 300);
 
 				} else {
 					musicPlay = false;
@@ -349,7 +391,7 @@ public class Window extends JFrame {
 		 * 
 		 * @param filename the sound file.
 		 */
-		// TODO finish
+		// TODO not in use
 		// public void stop(String filename) {
 		public void stop() {
 			try {
@@ -386,7 +428,7 @@ public class Window extends JFrame {
 			paddle.draw(g);
 			ball.draw(g);
 
-			// Moves the ball on mouse click or spacebar press.
+			// Release the ball on mouse click or spacebar press.
 			if (ballBegin == true) {
 				ball.move(getWidth(), getHeight(), (int) paddle.getX(), (int) paddle.getY());
 			}
@@ -402,6 +444,23 @@ public class Window extends JFrame {
 					}
 					if (i > 15 && i < 24) {
 						blocks[i].move(getWidth(), -1);
+					}
+				}
+				// Level 3
+				// Draws the blocks. Even number colums moving up and down
+				if (level == 3) {
+					blocks[i].draw(g);
+					if (i % 8 == 0) {
+						blocks[i].moveUpAndDow(getHeight() - ((i % 7) * 33), (i % 7) * 33);
+					}
+					if (i % 8 == 2) {
+						blocks[i].moveUpAndDow(getHeight() - (((i - 2) % 7) * 33), ((i - 2) % 7) * 33);
+					}
+					if (i % 8 == 4) {
+						blocks[i].moveUpAndDow(getHeight() - (((i - 4) % 7) * 33), ((i - 4) % 7) * 33);
+					}
+					if (i % 8 == 6) {
+						blocks[i].moveUpAndDow(getHeight() - (((i - 6) % 7) * 33), ((i - 6) % 7) * 33);
 					}
 				}
 			}
@@ -487,29 +546,35 @@ public class Window extends JFrame {
 					if (lives > 1) {
 						lives--;
 						ballBegin = false;
-						// TODO speed can increase with new balls
 						ball = new Ball(390 - ((3 - lives) * 10), 505, 10, Color.WHITE, (int) ballSpeed, 20);
-						// TODO change again, test version
-						// paddle = new Paddle(350, 522, 500, 15, Color.RED, 20);
 						paddle = new Paddle(350, 522, 100 - ((3 - lives) * 20), 15, Color.RED, 20);
 					} else {
 						g.setColor(Color.WHITE);
 						g.drawString("GAME OVER!", 370, 250);
+						g.drawString("Your score is " + points, 370, 265);
 						gameOver = true;
 					}
 				}
 			}
+			// TODO call pop up window with high score result
+			// call pop up to save high score
+			if (gameOver == true) {
+				// HighScorePopUp hs = new HighScorePopUp(new Stage());
+
+			}
 
 			// Checks to see if every block has been destroyed to determine if the game has
 			// been won.
+
 			for (int i = 0; i < blocks.length; i++) {
 				if (blocks[i].isDestroyed()) {
-					levelCompleted = true;
-					if (level == 3) {
-						// gameWon = true;
+					countDestroyedBlocks++;
+					if (countDestroyedBlocks == blocks.length) {
+						levelCompleted = true;
 					}
 
 				} else {
+					countDestroyedBlocks = 0;
 					levelCompleted = false;
 					gameWon = false;
 					// return;
@@ -525,17 +590,20 @@ public class Window extends JFrame {
 			if (levelCompleted == true && gameWon == false) {
 				if ("AWT-EventQueue-0".equals(Thread.currentThread().getName())) {
 					// TODO change color
-					getGraphics().drawString("LEVEL "+ level + " COMPLETED!", 350, 250);
+					// Text desplayed for 1 second
+					getGraphics().drawString("LEVEL " + level + " COMPLETED!", 350, 250);
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					}
 				}
-
 				System.out.println(Thread.currentThread().getName());
 				// paused = true;
 				ballBegin = false;
+				// Speed increase with every level
 				ballSpeed = ballSpeed + 2;
+				// Extra points for completing level
+				points = points + level * 50;
 				ball = new Ball(390 - ((3 - lives) * 10), 505, 10, Color.WHITE, ballSpeed, 20);
 				paddle = new Paddle(350, 522, 100 - ((3 - lives) * 20), 15, Color.RED, 20);
 				level++;
@@ -574,7 +642,12 @@ public class Window extends JFrame {
 			}
 
 		}
-
+		//TODO
+		public void paintString(Graphics g) {
+			super.paintComponents(g);
+			g.setColor(Color.WHITE);
+			g.drawString("Points: " + points, 600, 50);
+		}
 		/**
 		 * This method is used to run the panel in the main window. It keeps running as
 		 * long as the player hasn't lost all lives.
@@ -582,11 +655,10 @@ public class Window extends JFrame {
 		public void run() {
 			while (gameOver == false) {
 				// If paused = true
-				// System.out.println(Thread.currentThread().getName());
 				if (!paused) {
 					repaint();
 				}
-				if (levelCompleted) {
+				if (levelCompleted == true && gameWon == false) {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -599,6 +671,32 @@ public class Window extends JFrame {
 					System.out.println("Error detected");
 				}
 
+			}
+			if (gameWon == true || gameOver == true) {
+				Player.pointsScored = points;
+			
+				System.out.println("Enter to file/database: "+ StartWindow.player.getName() +" "+Player.pointsScored);
+		
+				/*editFile e = new editFile();
+				e.openFile("scores.txt");
+				e.addRecords(StartWindow.player.getName(), Player.pointsScored);
+				e.closeFile();*/
+				/*	paintComponent(getGraphics());
+				for (int i = 0; i > 5; i++) {
+
+					try {
+						getGraphics().drawString("Game will restart in " + (5-i)+ " seconds", 350, 250);
+						Thread.sleep(1000);
+					} catch (Exception e) {
+						System.out.println("Error");
+					}
+				}*/
+
+				// StartWindow sw= new StartWindow();
+				// Stage st = sw.start();
+				// TODO enter score and name to leader board
+				// TODO countdown to restart the game
+				//
 			}
 		}
 

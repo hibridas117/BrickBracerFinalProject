@@ -1,0 +1,7 @@
+viva 250
+viva 200
+kakra 100
+lol 600
+lop 12
+plot 1000
+lala 2
